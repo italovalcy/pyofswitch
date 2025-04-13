@@ -2,7 +2,7 @@ import asyncio
 from switch import PyOFSwitch
 
 async def main():
-    s = PyOFSwitch("127.0.0.1", 8888)
+    s = PyOFSwitch("127.0.0.1", 6653)
     await s.open_connection()
 
 if __name__ == '__main__':

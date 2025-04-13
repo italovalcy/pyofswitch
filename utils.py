@@ -1,5 +1,6 @@
 import struct
 import config
+from oflib import OpenFlowDict
 
 def of_slicer(remaining_data):
     """Slice a raw `bytes` instance into OpenFlow packets."""
@@ -20,3 +21,7 @@ def of_slicer(remaining_data):
         else:
             break
     return pkts, remaining_data
+
+def of_dict(msg):
+    of_dict = OpenFlowDict(msg)
+    return of_dict.as_dict()
