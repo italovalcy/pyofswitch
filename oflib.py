@@ -30,6 +30,7 @@ class OpenFlowDict:
             "command": self.msg.command,
             "cookie": hex(self.msg.cookie.value),
             "cookie_mask": hex(self.msg.cookie_mask.value),
+            "priority": self.msg.priority.value,
             "table_id": self.msg.table_id.value,
             "idle_timeout": self.msg.idle_timeout,
             "hard_timeout": self.msg.hard_timeout,
@@ -41,11 +42,12 @@ class OpenFlowDict:
 
     def as_dict_match(self):
         result = {
-            "match_type": self.msg.match.match_type,
-            "match_lengh": self.msg.match.length,
+            # we dont actually need those:
+            # "match_type": self.msg.match.match_type,
+            # "match_lengh": self.msg.match.length,
         }
         for oxm in self.msg.match.oxm_match_fields:
-            result[str(oxm.oxm_field)] = str(oxm.oxm_value)
+            result[oxm.oxm_field] = oxm.oxm_value
         return result
 
     def as_dict_instructions(self):
@@ -54,9 +56,10 @@ class OpenFlowDict:
         for instruction in self.msg.instructions:
             inst_name = InstructionType(instruction.instruction_type.value)
             inst_attrs = {"type": inst_name.name}
-            for name, value in instruction.get_class_attributes():
+            for name, _ in instruction.get_class_attributes():
                 if name in ignore_inst_attrs:
                     continue
+                value = getattr(instruction, name)
                 if name == "actions":
                     inst_attrs["actions"] = [
                         self.as_dict_action(action) for action in value
@@ -71,8 +74,9 @@ class OpenFlowDict:
             "type": action.action_type,
         }
         generic_attrs = set(["action_type", "length", "pad"])
-        for name, value in  action.get_class_attributes():
+        for name, _ in  action.get_class_attributes():
             if name in generic_attrs:
                 continue
+            value = getattr(action, name)
             action_dict[name] = value
         return action_dict
